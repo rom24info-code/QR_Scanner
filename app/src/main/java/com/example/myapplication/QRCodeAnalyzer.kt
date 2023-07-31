@@ -2,7 +2,9 @@ package com.example.myapplication
 
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import com.google.zxing.BarcodeFormat
 import com.google.zxing.BinaryBitmap
+import com.google.zxing.DecodeHintType
 import com.google.zxing.MultiFormatReader
 import com.google.zxing.PlanarYUVLuminanceSource
 import com.google.zxing.common.HybridBinarizer
@@ -33,7 +35,7 @@ class QRCodeAnalyzer(
         val binaryBmp = BinaryBitmap(HybridBinarizer(source))
         val multiFormatReader = MultiFormatReader()
 //        multiFormatReader.setHints (mapOf(
-//                DecodeHintType.POSSIBLE_FORMATS to arrayListOf(BarcodeFormat.QR_CODE)
+//                DecodeHintType.POSSIBLE_FORMATS to arrayListOf(BarcodeFormat.EAN_13)
 //            )
 //        )
 

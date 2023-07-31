@@ -78,7 +78,7 @@ fun CameraView() {
     val qrCodeAnalyzer = remember {
         QRCodeAnalyzer { it, count ->
             println(count)
-            val maxCount = 10
+            val maxCount = 50
             var hText = ""
             if (count >= maxCount) {
                 hText = "Barcode not recognized!"
