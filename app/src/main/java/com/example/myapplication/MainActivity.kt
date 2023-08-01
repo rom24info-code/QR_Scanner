@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import android.media.CamcorderProfile
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.util.Size
@@ -105,6 +106,19 @@ fun CameraView() {
     var colorText by remember { mutableStateOf(Color.Green) }
     var clickable by remember { mutableStateOf(true) }
 
+    val mPlayerGood by remember {
+        mutableStateOf(MediaPlayer.create(context, R.raw.scangood))
+    }
+    val mPlayerErr by remember {
+        mutableStateOf(MediaPlayer.create(context, R.raw.scanerror))
+    }
+//    mPlayerGood.setOnCompletionListener {
+//        it.reset()
+//    }
+//    mPlayerErr.setOnCompletionListener {
+//        it.reset()
+//    }
+
     val imageAnalysis = remember {
         ImageAnalysis.Builder()
             .setTargetResolution(
@@ -115,17 +129,26 @@ fun CameraView() {
             .build()
     }
 
+
+
     val qrCodeAnalyzer = remember {
         QRCodeAnalyzerML(errorFun = {
+
             colorText = Color.Red
             textQR = it
             imageAnalysis.clearAnalyzer()
             clickable = true
+
+            mPlayerErr.start()
+//            mPlayerErr.release()
         }) {
             colorText = Color.Green
             textQR = it
             imageAnalysis.clearAnalyzer()
             clickable = true
+
+            mPlayerGood.start()
+//            mPlayerGood.release()
         }
     }
 
