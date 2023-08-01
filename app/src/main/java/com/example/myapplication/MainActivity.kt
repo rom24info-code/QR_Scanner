@@ -102,7 +102,7 @@ fun CameraView() {
     val lifecycleOwner = LocalLifecycleOwner.current
 
     var textQR by remember { mutableStateOf("") }
-
+    var colorText by remember { mutableStateOf(Color.Green) }
     var clickable by remember { mutableStateOf(true) }
 
     val imageAnalysis = remember {
@@ -117,10 +117,12 @@ fun CameraView() {
 
     val qrCodeAnalyzer = remember {
         QRCodeAnalyzerML(errorFun = {
+            colorText = Color.Red
             textQR = it
             imageAnalysis.clearAnalyzer()
             clickable = true
         }) {
+            colorText = Color.Green
             textQR = it
             imageAnalysis.clearAnalyzer()
             clickable = true
@@ -156,9 +158,9 @@ fun CameraView() {
             textQR, modifier = Modifier
                 .fillMaxSize()
                 .align(Alignment.TopCenter)
-                .padding(top = 30.dp)
+                .padding(top = 30.dp, start = 10.dp, end = 10.dp)
                 .height(100.dp),
-            color = Color.Green,
+            color = colorText,
             textAlign = TextAlign.Center
         )
 
