@@ -74,7 +74,7 @@ fun CameraView() {
         } else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_720P)) {
             CamcorderProfile.get(CamcorderProfile.QUALITY_720P)
         } else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_480P)) {
-            CamcorderProfile.get(CamcorderProfile.QUALITY_720P)
+            CamcorderProfile.get(CamcorderProfile.QUALITY_480P)
         } else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_LOW)) {
             CamcorderProfile.get(CamcorderProfile.QUALITY_LOW)
         } else {
@@ -116,23 +116,14 @@ fun CameraView() {
     }
 
     val qrCodeAnalyzer = remember {
-        QRCodeAnalyzerML { it, count ->
-            println(count)
-            val maxCount = QRCodeAnalyzerML.maxCount
-            var hText = ""
-            if (count >= maxCount) {
-                hText = "Barcode not recognized!"
-            } else {
-                hText = it
-            }
-
-            println(hText)
-            textQR = hText
-
-            if (count >= maxCount || it.isNotEmpty()) {
-                imageAnalysis.clearAnalyzer()
-                clickable = true
-            }
+        QRCodeAnalyzerML(errorFun = {
+            textQR = it
+            imageAnalysis.clearAnalyzer()
+            clickable = true
+        }) {
+            textQR = it
+            imageAnalysis.clearAnalyzer()
+            clickable = true
         }
     }
 

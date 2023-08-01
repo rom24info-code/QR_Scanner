@@ -7,7 +7,8 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 
 class QRCodeAnalyzerML(
-    private val urlCallback: (String, Int) -> Unit
+    private val errorFun: (String) -> Unit,
+    private val successFun: (String) -> Unit
 ) : ImageAnalysis.Analyzer {
 
     companion object {
@@ -19,7 +20,7 @@ class QRCodeAnalyzerML(
     private fun checkBarcodes(listBarcodes: MutableList<String>): Boolean {
         if (listBarcodes.isNotEmpty()) {
             val mapBarcodes = listBarcodes.groupBy { it }
-            val groupGreatOne = mapBarcodes.values.find { it.count() > 1 && it[0] != "no barcode" }
+            val groupGreatOne = mapBarcodes.values.find { it.count() > 1 && it[0] != ""}
             if (groupGreatOne!= null && groupGreatOne.count() >= 3)
                 return true
         }
@@ -35,34 +36,28 @@ class QRCodeAnalyzerML(
             val scanner = BarcodeScanning.getClient()
 
             scanner.process(inputImage).addOnSuccessListener { barcodes ->
-                    if (barcodes.isNotEmpty()) {
-                        val byteArrayBarcode = barcodes.first()?.rawValue?.toByteArray()
+                if (barcodes.isNotEmpty()) {
+                    val byteArrayBarcode = barcodes.first()?.rawValue?.toByteArray()
 
-                        if (byteArrayBarcode != null) {
-                            barcodList.add(byteArrayBarcode.decodeToString())
+                    if (byteArrayBarcode != null) {
+                        barcodList.add(byteArrayBarcode.decodeToString())
 
-                            if (checkBarcodes(barcodList)) {
-                                urlCallback(byteArrayBarcode.decodeToString(), 0)
-                                barcodList.clear()
-                            }
-
-                        } else {
-                            urlCallback("", barcodList.count())
+                        if (checkBarcodes(barcodList)) {
+                            successFun(byteArrayBarcode.decodeToString())
+                            barcodList.clear()
                         }
-                    } else {
-                        barcodList.add("no barcode")
-                        urlCallback("", barcodList.count())
+
                     }
-                    image.close()
-                }.addOnFailureListener {
-                    urlCallback("", barcodList.count())
-                    image.close()
-                }.addOnCanceledListener {
-                    urlCallback("", barcodList.count())
-                    image.close()
+                } else {
+                    barcodList.add("")
                 }
+            }.addOnCompleteListener {
+                image.close()
+            }
         }
-        if (barcodList.count() >= 50) {
+
+        if (barcodList.count() >= maxCount) {
+            errorFun("Штрихкод не распознан!!!")
             barcodList.clear()
         }
     }
