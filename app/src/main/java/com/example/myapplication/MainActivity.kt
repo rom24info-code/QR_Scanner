@@ -112,12 +112,6 @@ fun CameraView() {
     val mPlayerErr by remember {
         mutableStateOf(MediaPlayer.create(context, R.raw.scanerror))
     }
-//    mPlayerGood.setOnCompletionListener {
-//        it.reset()
-//    }
-//    mPlayerErr.setOnCompletionListener {
-//        it.reset()
-//    }
 
     val imageAnalysis = remember {
         ImageAnalysis.Builder()
@@ -140,7 +134,6 @@ fun CameraView() {
             clickable = true
 
             mPlayerErr.start()
-//            mPlayerErr.release()
         }) {
             colorText = Color.Green
             textQR = it
@@ -148,7 +141,6 @@ fun CameraView() {
             clickable = true
 
             mPlayerGood.start()
-//            mPlayerGood.release()
         }
     }
 

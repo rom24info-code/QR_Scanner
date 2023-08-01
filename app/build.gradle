@@ -78,5 +78,4 @@ dependencies {
     implementation 'com.google.zxing:core:3.5.1'
     implementation "io.ktor:ktor-client-core:2.3.2"
     implementation "io.ktor:ktor-client-android:2.3.2"
-//    implementation "io.ktor:ktor-client-core:2.3.2"
 }
