@@ -20,13 +20,13 @@ class QRCodeAnalyzerML(
     private fun checkBarcodes(listBarcodes: MutableList<String>): Boolean {
         if (listBarcodes.isNotEmpty()) {
             val mapBarcodes = listBarcodes.groupBy { it }
-            val groupGreatOne = mapBarcodes.values.find { it.count() > 1 && it[0] != ""}
+            val groupGreatOne = mapBarcodes.values.find { it.count() > 1 && it.first() != ""}
             if (groupGreatOne!= null && groupGreatOne.count() >= 3)
                 return true
         }
-
         return false
     }
+
     @SuppressLint("UnsafeOptInUsageError")
     override fun analyze(image: ImageProxy) {
         val mediaImage = image.image
