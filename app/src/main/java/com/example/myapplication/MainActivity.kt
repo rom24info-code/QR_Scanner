@@ -1,8 +1,10 @@
 package com.example.myapplication
 
 import android.annotation.SuppressLint
+import android.media.CamcorderProfile
 import android.os.Build
 import android.os.Bundle
+import android.util.Size
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.Check
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,10 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.google.android.material.progressindicator.CircularProgressIndicator
 
 
 class MainActivity : ComponentActivity() {
@@ -59,10 +64,13 @@ class MainActivity : ComponentActivity() {
 }
 
 
-@SuppressLint("RestrictedApi")
+
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun CameraView() {
+
+    val camProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_1080P)
+
     val lensFacing = CameraSelector.LENS_FACING_BACK
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -72,13 +80,18 @@ fun CameraView() {
     var clickable by remember { mutableStateOf(true) }
 
     val imageAnalysis = remember {
-        ImageAnalysis.Builder().build()
+        ImageAnalysis.Builder()
+            .setTargetResolution(
+                Size(camProfile.videoFrameHeight,
+                camProfile.videoFrameWidth)
+            )
+            .build()
     }
 
     val qrCodeAnalyzer = remember {
-        QRCodeAnalyzer { it, count ->
+        QRCodeAnalyzerML { it, count ->
             println(count)
-            val maxCount = 50
+            val maxCount = QRCodeAnalyzerML.maxCount
             var hText = ""
             if (count >= maxCount) {
                 hText = "Barcode not recognized!"
@@ -97,23 +110,6 @@ fun CameraView() {
     }
 
     val previewView = remember { PreviewView(context) }
-
-
-
-//    LaunchedEffect(lensFacing) {
-//        val cameraProvider = cameraProviderFuture.get()
-//        cameraProvider.unbindAll()
-//
-//        cameraProvider.bindToLifecycle(
-//            lifecycleOwner,
-//            cameraSelector,
-//            preview,
-//            imageCapture
-//        )
-//
-//        preview.setSurfaceProvider(previewView.surfaceProvider)
-//    }
-
 
 
     Box(contentAlignment = Alignment.BottomCenter, modifier = Modifier.fillMaxSize()) {
@@ -140,11 +136,22 @@ fun CameraView() {
 
         Text(
             textQR, modifier = Modifier
+                .fillMaxSize()
                 .align(Alignment.TopCenter)
                 .padding(top = 30.dp)
                 .height(100.dp),
-            color = Color.White
+            color = Color.Green,
+            textAlign = TextAlign.Center
         )
+
+        if (!clickable) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(220.dp),
+                color = Color.Magenta
+                )
+        }
 
         IconButton(
             enabled = clickable,
