@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import android.annotation.SuppressLint
 import android.media.CamcorderProfile
 import android.os.Build
 import android.os.Bundle
@@ -38,10 +37,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.example.myapplication.ui.theme.MyApplicationTheme
-import com.google.android.material.progressindicator.CircularProgressIndicator
 
 
 class MainActivity : ComponentActivity() {
@@ -69,7 +68,34 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CameraView() {
 
-    val camProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_1080P)
+    val camProfile by lazy {
+        if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_1080P)) {
+            CamcorderProfile.get(CamcorderProfile.QUALITY_1080P)
+        } else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_720P)) {
+            CamcorderProfile.get(CamcorderProfile.QUALITY_720P)
+        } else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_480P)) {
+            CamcorderProfile.get(CamcorderProfile.QUALITY_720P)
+        } else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_LOW)) {
+            CamcorderProfile.get(CamcorderProfile.QUALITY_LOW)
+        } else {
+            null
+        }
+    }
+
+
+
+    if (camProfile == null) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = "Сamera not initialized!!!",
+                modifier = Modifier
+                    .align(Alignment.Center),
+                color = Color.Red,
+                fontSize = 30.sp
+            )
+        }
+        return
+    }
 
     val lensFacing = CameraSelector.LENS_FACING_BACK
     val context = LocalContext.current
@@ -82,8 +108,9 @@ fun CameraView() {
     val imageAnalysis = remember {
         ImageAnalysis.Builder()
             .setTargetResolution(
-                Size(camProfile.videoFrameHeight,
-                camProfile.videoFrameWidth)
+                Size(
+                    camProfile!!.videoFrameHeight,
+                camProfile!!.videoFrameWidth)
             )
             .build()
     }

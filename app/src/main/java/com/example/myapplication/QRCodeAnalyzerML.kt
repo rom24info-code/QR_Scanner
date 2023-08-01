@@ -11,7 +11,7 @@ class QRCodeAnalyzerML(
 ) : ImageAnalysis.Analyzer {
 
     companion object {
-        var maxCount = 300
+        var maxCount = 50
     }
 
     private var barcodList = mutableListOf<String>()
