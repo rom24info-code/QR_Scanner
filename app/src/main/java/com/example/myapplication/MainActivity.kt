@@ -167,8 +167,9 @@ fun CameraView() {
                 modifier = Modifier
                     .align(Alignment.Center)
                     .size(220.dp),
-                color = Color.Magenta
-                )
+                color = Color.Magenta,
+                strokeWidth = 10.dp
+            )
         }
 
         IconButton(

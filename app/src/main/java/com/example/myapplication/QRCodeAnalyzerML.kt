@@ -46,7 +46,6 @@ class QRCodeAnalyzerML(
                             successFun(byteArrayBarcode.decodeToString())
                             barcodList.clear()
                         }
-
                     }
                 } else {
                     barcodList.add("")
