@@ -5,14 +5,13 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
-import io.ktor.client.HttpClient
-import io.ktor.client.request.request
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.HttpMethod
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.net.Socket
+
+
+
 
 class QRCodeAnalyzerML(
     private val errorFun: (String) -> Unit,
@@ -94,12 +93,9 @@ class QRCodeAnalyzerML(
         barcodeList.clear()
 
         try {
-            val client = HttpClient()
-            client.close()
-            val response: HttpResponse = client.request("http://192.168.0.25/${getDecodedBarcode(barcodeList).decodeToString()}") {
-                method = HttpMethod.Get
-            }
-            response.cancel()
+            val mSocket = Socket("192.168.11.106", 8080)
+            mSocket.getOutputStream().write(getDecodedBarcode(barcodeList))
+            mSocket.close()
 
         } catch (e: Exception) {
 
