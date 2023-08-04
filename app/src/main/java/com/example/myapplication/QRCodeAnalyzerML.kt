@@ -8,16 +8,20 @@ import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 import java.net.Socket
 
 
-
-
 class QRCodeAnalyzerML(
+    private val imageAnalysis: ImageAnalysis,
     private val errorFun: (String) -> Unit,
     private val successFun: (String) -> Unit
 ) : ImageAnalysis.Analyzer {
 
+    private var countScan = 1
     companion object {
         var maxCount = 50
     }
@@ -61,12 +65,11 @@ class QRCodeAnalyzerML(
                             barcodeList.add(byteArrayBarcode)
 
                             if (checkBarcodes(barcodeList)) {
-                                GlobalScope.launch(Dispatchers.IO) {
+//                                GlobalScope.launch(Dispatchers.IO) {
                                     barcodeSuccess(
-                                        barcodeList,
-                                        successFun
+                                        barcodeList
                                     )
-                                }
+//                                }
                             }
                         }
                     } else {
@@ -82,23 +85,38 @@ class QRCodeAnalyzerML(
         if (barcodeList.count() >= maxCount) {
             errorFun("Штрихкод не распознан!!!")
             barcodeList.clear()
+            imageAnalysis.clearAnalyzer()
         }
     }
 
-    private suspend fun barcodeSuccess(
+
+    private fun barcodeSuccess(
         barcodeList: MutableList<ByteArray>,
-        successFun: (String) -> Unit
     ) {
-        successFun(getDecodedBarcode(barcodeList).decodeToString())
+        imageAnalysis.clearAnalyzer()
+        val barcode = getDecodedBarcode(barcodeList).decodeToString()
         barcodeList.clear()
 
-        try {
-            val mSocket = Socket("192.168.11.106", 8080)
-            mSocket.getOutputStream().write(getDecodedBarcode(barcodeList))
-            mSocket.close()
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                val mSocket = Socket("192.168.0.25", 8080)
 
-        } catch (e: Exception) {
+                val bWriter = BufferedWriter(OutputStreamWriter(mSocket.getOutputStream()))
+                bWriter.write(barcode + "\n")
+                bWriter.flush()
 
+                val bReader = BufferedReader(InputStreamReader(mSocket.getInputStream()))
+                val rezult = bReader.readLine()
+                if (rezult == null || rezult.uppercase() != "OK")
+                    throw IllegalArgumentException("Сбой виртуальной клавиатуры!!!")
+
+                mSocket.close()
+
+                successFun(barcode)
+
+            } catch (e: Exception) {
+                errorFun(e.stackTraceToString())
+            }
         }
 
     }

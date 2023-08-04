@@ -126,18 +126,18 @@ fun CameraView() {
 
 
     val qrCodeAnalyzer = remember {
-        QRCodeAnalyzerML(errorFun = {
+        QRCodeAnalyzerML(
+            imageAnalysis = imageAnalysis,
+            errorFun = {
 
             colorText = Color.Red
             textQR = it
-            imageAnalysis.clearAnalyzer()
             clickable = true
 
             mPlayerErr.start()
         }) {
             colorText = Color.Green
             textQR = it
-            imageAnalysis.clearAnalyzer()
             clickable = true
 
             mPlayerGood.start()
